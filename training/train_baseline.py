@@ -118,8 +118,8 @@ class BaselineTrainer:
             self.val_accuracies.append(val_acc)
             
             print(f"\n Результати епохи {epoch+1}:")
-            print(f"   Навчання - Loss: {train_loss:.4f}, Accuracy: {train_acc:.2f}%")
-            print(f"   Валідація - Loss: {val_loss:.4f}, Accuracy: {val_acc:.2f}%")
+            print(f"Навчання - Loss: {train_loss:.4f}, Accuracy: {train_acc:.2f}%")
+            print(f"Валідація - Loss: {val_loss:.4f}, Accuracy: {val_acc:.2f}%")
             
             # Перевірка найкращої моделі
             if val_acc > self.best_val_accuracy:
@@ -200,7 +200,7 @@ class BaselineTrainer:
         os.makedirs(results_dir, exist_ok=True)
         
         with open(os.path.join(results_dir, 'training_results.txt'), 'w') as f:
-            f.write("=== РЕЗУЛЬТАТИ НАВЧАННЯ BASELINE CNN ===\n\n")
+            f.write(" РЕЗУЛЬТАТИ НАВЧАННЯ BASELINE CNN\n\n")
             f.write(f"Найкраща точність на валідації: {self.best_val_accuracy:.2f}%\n")
             f.write(f"Фінальна точність на навчанні: {self.train_accuracies[-1]:.2f}%\n")
             f.write(f"Фінальна точність на валідації: {self.val_accuracies[-1]:.2f}%\n")
@@ -225,10 +225,10 @@ def main():
     
     # Пристрій
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"🔧 Використовується пристрій: {device}")
+    print(f"Використовується пристрій: {device}")
     
     # Завантаження даних
-    print("📁 Завантаження даних...")
+    print("Завантаження даних.")
     train_loader, val_loader, class_names = get_data_loaders(
         DATA_DIR, 
         input_size=CONFIG['input_size'], 
@@ -236,7 +236,7 @@ def main():
     )
     
     # Модель
-    print("🔄 Ініціалізація моделі...")
+    print("Ініціалізація моделі.")
     model = CustomCNN(
         num_classes=len(class_names), 
         input_size=CONFIG['input_size']
@@ -261,12 +261,12 @@ def main():
     
     # Фінальний результат
     print(f"\n{'='*50}")
-    print("🎯 ФІНАЛЬНІ РЕЗУЛЬТАТИ")
+    print("ФІНАЛЬНІ РЕЗУЛЬТАТИ")
     print(f"{'='*50}")
     print(f"Найкраща точність на валідації: {best_accuracy:.2f}%")
     
     if best_accuracy >= 60:
-        print("ЦІЛЬ ДОСЯГНУТА! Accuracy ≥ 60%")
+        print("Ціль досягнута. Accuracy ≥ 60%")
     else:
         print(" Ціль не досягнута. Потрібно покращити модель.")
     print(f"{'='*50}")
