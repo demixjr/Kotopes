@@ -7,12 +7,19 @@ import numpy as np
 from tqdm import tqdm
 import sys
 
-# Шляхи для імпорту
-sys.path.append('..')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)  
+sys.path.insert(0, project_root)
 
 from models.custom_cnn import CustomCNN
 from utils.data_loader import get_data_loaders
-from configs.paths import DATA_DIR, CHECKPOINTS_DIR, RESULTS_DIR
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)  
+
+DATA_DIR = os.path.join(project_root, "data")
+CHECKPOINTS_DIR = os.path.join(project_root, "checkpoints") 
+RESULTS_DIR = os.path.join(project_root, "results")
 
 class BaselineTrainer:
     def __init__(self, model, train_loader, val_loader, criterion, optimizer, device):
