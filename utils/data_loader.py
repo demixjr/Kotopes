@@ -59,6 +59,3 @@ def get_data_loaders(data_dir, input_size=128, batch_size=32):
 
 
 
-if __name__ == "__main__":
-    data_directory = "D:\python\Kotopes\data"  
-    train_loader, val_loader, classes = get_data_loaders(data_directory)
