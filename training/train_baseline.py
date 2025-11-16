@@ -219,7 +219,7 @@ def main():
         'batch_size': 32,
         'epochs': 20,
         'learning_rate': 0.001,
-        'input_size': 128,
+        'input_size': 64,
         'early_stopping_patience': 5
     }
     
