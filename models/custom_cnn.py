@@ -42,7 +42,6 @@ class CustomCNN(nn.Module):
         x = self.pool1(self.relu1(self.conv1(x)))
         x = self.pool2(self.relu2(self.conv2(x)))
         x = self.pool3(self.relu3(self.conv3(x)))
-        x = self.pool4(self.relu4(self.conv4(x)))
         
         # Вирівнювання для повнозв'язних шарів
         x = x.view(x.size(0), -1)
