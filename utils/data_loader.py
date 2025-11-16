@@ -9,16 +9,14 @@ def get_data_loaders(data_dir, input_size=128, batch_size=32):
     """
     # Трансформації для навчальних даних
     train_transforms = transforms.Compose([
-        transforms.Resize((input_size, input_size)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+       transforms.Resize((input_size, input_size)),
+       transforms.ToTensor(),
     ])
     
     # Трансформації для валідаційних даних
     val_transforms = transforms.Compose([
         transforms.Resize((input_size, input_size)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
     # Створення datasets
@@ -55,6 +53,5 @@ def get_data_loaders(data_dir, input_size=128, batch_size=32):
     print(f"Валідаційні зображення: {len(val_dataset)}")
 
     return train_loader, val_loader, class_names
-
 
 

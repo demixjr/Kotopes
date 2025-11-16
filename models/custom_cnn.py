@@ -1,55 +1,32 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 class CustomCNN(nn.Module):
     def __init__(self, num_classes=3, input_size=128):
-        super(CustomCNN, self).__init__()
+        super().__init__()
         
-        # Розрахунок розміру після згорткових шарів
-        self.feature_size = self._calculate_feature_size(input_size)
+        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)  # 3x3 kernel
+        self.pool1 = nn.MaxPool2d(2)  # зменшення в 2 рази
         
-        # Перший блок: Conv  -> ReLU -> MaxPool
-        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, padding=1)
-        self.relu1 = nn.ReLU()
-        self.pool1 = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
+        self.pool2 = nn.MaxPool2d(2)
         
-        # Другий блок
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
-        self.relu2 = nn.ReLU()
-        self.pool2 = nn.MaxPool2d(2, 2)
-        
-        # Третій блок
-        self.conv3 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.relu3 = nn.ReLU()
-        self.pool3 = nn.MaxPool2d(2, 2)
-        
-        
-        # Повністю з'єднані шари
-        self.fc1 = nn.Linear(64 * self.feature_size * self.feature_size, 128)
-        self.relu4 = nn.ReLU()
+        # Один повнозв'язний шар
+        self.fc = nn.Linear(64 * 32 * 32, num_classes)  # для 128x128 зображень
         self.dropout = nn.Dropout(0.5)
-        self.fc2 = nn.Linear(128, num_classes)
-        
-    def _calculate_feature_size(self, input_size):
-        """Розраховує розмір feature map після всіх пулінгів"""
-        size = input_size
-        for _ in range(3):  # 3 пулінгових шари
-            size = size // 2
-        return size
-        
+    
     def forward(self, x):
-        # Прямий прохід через згорткові шари
-        x = self.pool1(self.relu1(self.conv1(x)))
-        x = self.pool2(self.relu2(self.conv2(x)))
-        x = self.pool3(self.relu3(self.conv3(x)))
+        # Conv block 1
+        x = self.pool1(F.relu(self.conv1(x)))  # 128x128 -> 64x64
         
-        # Вирівнювання для повнозв'язних шарів
-        x = x.view(x.size(0), -1)
+        # Conv block 2  
+        x = self.pool2(F.relu(self.conv2(x)))  # 64x64 -> 32x32
         
-        # Повнозв'язні шари
-        x = self.relu4(self.fc1(x))
+        # Classifier
+        x = x.view(x.size(0), -1)  # flatten
         x = self.dropout(x)
-        x = self.fc2(x)
+        x = self.fc(x)
         
         return x
 

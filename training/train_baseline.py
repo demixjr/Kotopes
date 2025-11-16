@@ -216,12 +216,13 @@ class BaselineTrainer:
 def main():
     # Параметри
     CONFIG = {
-        'batch_size': 32,
-        'epochs': 20,
-        'learning_rate': 0.001,
-        'input_size': 64,
-        'early_stopping_patience': 5
-    }
+    'batch_size': 64,  # ↑ batch size
+    'epochs': 20,
+    'learning_rate': 0.0005,  # ↓ learning rate
+    'input_size': 128,
+    'early_stopping_patience': 5,
+    'weight_decay': 1e-3  # ↑ regularization
+}
     
     # Пристрій
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -244,7 +245,7 @@ def main():
     
     # Оптимізатор та функція втрат
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=CONFIG['learning_rate'])
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
     
     # Тренер
     trainer = BaselineTrainer(model, train_loader, val_loader, criterion, optimizer, device)
