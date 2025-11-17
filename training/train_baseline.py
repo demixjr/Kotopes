@@ -216,12 +216,13 @@ class BaselineTrainer:
 def main():
     # Параметри
     CONFIG = {
-    'batch_size': 64,  # ↑ batch size
+    'batchv_size': 128,
+    'batcht_size':16,  
     'epochs': 20,
-    'learning_rate': 0.0005,  # ↓ learning rate
+    'learning_rate': 0.0005,  
     'input_size': 128,
     'early_stopping_patience': 5,
-    'weight_decay': 1e-3  # ↑ regularization
+    'weight_decay': 1e-4  
 }
     
     # Пристрій
@@ -233,7 +234,8 @@ def main():
     train_loader, val_loader, class_names = get_data_loaders(
         DATA_DIR, 
         input_size=CONFIG['input_size'], 
-        batch_size=CONFIG['batch_size']
+        batcht_size=CONFIG['batcht_size'],
+        batchv_size=CONFIG['batchv_size']
     )
     
     # Модель
@@ -245,7 +247,7 @@ def main():
     
     # Оптимізатор та функція втрат
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.0005)
     
     # Тренер
     trainer = BaselineTrainer(model, train_loader, val_loader, criterion, optimizer, device)

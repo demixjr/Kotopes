@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import os
 
-def get_data_loaders(data_dir, input_size=128, batch_size=32):
+def get_data_loaders(data_dir, input_size=128, batcht_size=32, batchv_size = 128):
     """
     Створює DataLoader'и для навчання та валідації.
     """
@@ -33,14 +33,14 @@ def get_data_loaders(data_dir, input_size=128, batch_size=32):
     # Створення DataLoader'ів
     train_loader = DataLoader(
         train_dataset,
-        batch_size=batch_size,
+        batch_size=batcht_size,
         shuffle=True,
         num_workers=2
     )
     
     val_loader = DataLoader(
         val_dataset,
-        batch_size=batch_size,
+        batch_size=batchv_size,
         shuffle=False,
         num_workers=2
     )
