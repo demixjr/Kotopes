@@ -169,7 +169,7 @@ def main():
     # Параметры
     DATA_DIR = 'data'
     BATCH_SIZE = 32
-    NUM_EPOCHS = 20
+    NUM_EPOCHS = 5
     LEARNING_RATE = 0.001
     NUM_CLASSES = 3
     IMAGE_SIZE = 224  # Для pretrained моделей обычно 224
@@ -177,11 +177,10 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'Using device: {device}')
     
-    # Трансформации данных
+    # Трансформации данных (без аугментации для ускорения)
     data_transforms = {
         'train': transforms.Compose([
             transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
-            transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]),
