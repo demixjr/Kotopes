@@ -13,7 +13,7 @@ class CustomCNN(nn.Module):
         self.pool2 = nn.MaxPool2d(2)
         
         # Один повнозв'язний шар
-        self.fc = nn.Linear(64 * 32 * 32, num_classes)  # для 128x128 зображень
+        self.fc = nn.Linear(64 * (input_size//4) * (input_size//4), num_classes)
         self.dropout = nn.Dropout(0.5)
     
     def forward(self, x):
