@@ -16,7 +16,7 @@ from datetime import datetime
 from tqdm import tqdm
 
 class TransferLearningTrainer:
-    def __init__(self, data_dir='data', batch_size=8, image_size=64, num_classes=3):
+    def __init__(self, data_dir='data', batch_size=32, image_size=224, num_classes=3):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.image_size = image_size
@@ -39,9 +39,9 @@ class TransferLearningTrainer:
         print("=" * 70)
 
     def _create_directories(self):
-        """Створення необхідних директорій"""
-        os.makedirs('checkpoints', exist_ok=True)
-        os.makedirs('results', exist_ok=True)
+     """Створення необхідних директорій"""
+    os.makedirs('checkpoints', exist_ok=True)
+    os.makedirs('results/transfer', exist_ok=True)
 
     def _print_header(self, text):
         """Красивий вивід заголовку"""
@@ -236,86 +236,116 @@ class TransferLearningTrainer:
         print(f"\n Навчання завершено за {time_elapsed//60:.0f}хв {time_elapsed%60:.0f}с")
         print(f" Найкраща точність валідації: {best_acc:.2f}%")
 
-    def save_results(self, model_name, mode):
-        """Збереження результатів"""
-        self._print_header("ЗБЕРЕЖЕННЯ РЕЗУЛЬТАТІВ")
+def save_results(self, model_name, mode):
+    """Збереження результатів у структурованій папці"""
+    
+    # Створення папки для поточного експерименту
+    experiment_folder = f"results/transfer/{model_name}_{mode}"
+    os.makedirs(experiment_folder, exist_ok=True)
+    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    base_filename = f"{model_name}_{mode}_{timestamp}"
+    
+    self._print_header("ЗБЕРЕЖЕННЯ РЕЗУЛЬТАТІВ")
+    
+    # Текстові результати
+    txt_filename = f"{base_filename}_results.txt"
+    txt_path = os.path.join(experiment_folder, txt_filename)
+    
+    with open(txt_path, 'w', encoding='utf-8') as f:
+        f.write("=" * 60 + "\n")
+        f.write("         РЕЗУЛЬТАТИ НАВЧАННЯ TRANSFER LEARNING\n")
+        f.write("=" * 60 + "\n\n")
         
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        f.write(f"Модель: {model_name.upper()}\n")
+        f.write(f"Режим: {mode.upper()}\n")
+        f.write(f"Дата навчання: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Розмір зображення: {self.image_size}x{self.image_size}\n")
+        f.write(f"Batch size: {self.batch_size}\n")
+        f.write(f"Кількість класів: {self.num_classes}\n\n")
         
-        # Текстові результати
-        with open(os.path.join('results', f'transfer_results_{timestamp}.txt'), 'w', encoding='utf-8') as f:
-            f.write("=" * 60 + "\n")
-            f.write("         РЕЗУЛЬТАТИ НАВЧАННЯ TRANSFER LEARNING\n")
-            f.write("=" * 60 + "\n\n")
-            
-            f.write(f"Модель: {model_name.upper()}\n")
-            f.write(f"Режим: {mode.upper()}\n")
-            f.write(f"Дата навчання: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-            
-            f.write("МЕТРИКИ НАВЧАННЯ:\n")
-            f.write(f"   Найкраща точність на валідації: {self.best_val_accuracy:.2f}%\n")
-            f.write(f"   Фінальна точність на навчанні: {self.history['train_acc'][-1]:.2f}%\n")
-            f.write(f"   Фінальна точність на валідації: {self.history['val_acc'][-1]:.2f}%\n")
-            f.write(f"   Фінальний loss на навчанні: {self.history['train_loss'][-1]:.4f}\n")
-            f.write(f"   Фінальний loss на валідації: {self.history['val_loss'][-1]:.4f}\n")
-            f.write(f"   Кількість епох: {len(self.history['train_acc'])}\n\n")
-            
-            f.write("ІСТОРІЯ НАВЧАННЯ:\n")
-            f.write("Epoch | Train Loss | Val Loss | Train Acc | Val Acc | LR\n")
-            f.write("-" * 65 + "\n")
-            
-            for i in range(len(self.history['train_acc'])):
-                f.write(f"{i+1:3d}   | {self.history['train_loss'][i]:10.4f} | {self.history['val_loss'][i]:8.4f} | "
-                       f"{self.history['train_acc'][i]:9.2f}% | {self.history['val_acc'][i]:7.2f}% | "
-                       f"{self.history['learning_rates'][i]:.2e}\n")
+        f.write("МЕТРИКИ НАВЧАННЯ:\n")
+        f.write(f"   Найкраща точність на валідації: {self.best_val_accuracy:.2f}%\n")
+        f.write(f"   Фінальна точність на навчанні: {self.history['train_acc'][-1]:.2f}%\n")
+        f.write(f"   Фінальна точність на валідації: {self.history['val_acc'][-1]:.2f}%\n")
+        f.write(f"   Фінальний loss на навчанні: {self.history['train_loss'][-1]:.4f}\n")
+        f.write(f"   Фінальний loss на валідації: {self.history['val_loss'][-1]:.4f}\n")
+        f.write(f"   Кількість епох: {len(self.history['train_acc'])}\n\n")
         
-        # JSON результати
-        json_results = {
-            'model_name': model_name,
-            'mode': mode,
-            'best_val_accuracy': float(self.best_val_accuracy),
-            'training_history': self.history,
-            'timestamp': timestamp
-        }
+        f.write("ІСТОРІЯ НАВЧАННЯ:\n")
+        f.write("Epoch | Train Loss | Val Loss | Train Acc | Val Acc | LR\n")
+        f.write("-" * 65 + "\n")
         
-        with open(os.path.join('results', f'transfer_history_{timestamp}.json'), 'w') as f:
-            json.dump(json_results, f, indent=2)
-        
-        # Графіки
-        self._plot_training_history(timestamp)
-        
-        print(f" Результати збережено в папці results/")
-        print(f" Текстові результати: transfer_results_{timestamp}.txt")
-        print(f" Найкраща модель: checkpoints/transfer_best.pth")
+        for i in range(len(self.history['train_acc'])):
+            f.write(f"{i+1:3d}   | {self.history['train_loss'][i]:10.4f} | {self.history['val_loss'][i]:8.4f} | "
+                   f"{self.history['train_acc'][i]:9.2f}% | {self.history['val_acc'][i]:7.2f}% | "
+                   f"{self.history['learning_rates'][i]:.2e}\n")
+    
+    # JSON результати
+    json_filename = f"{base_filename}_history.json"
+    json_path = os.path.join(experiment_folder, json_filename)
+    
+    json_results = {
+        'model_name': model_name,
+        'mode': mode,
+        'best_val_accuracy': float(self.best_val_accuracy),
+        'training_history': self.history,
+        'training_parameters': {
+            'image_size': self.image_size,
+            'batch_size': self.batch_size,
+            'num_classes': self.num_classes,
+            'device': str(self.device)
+        },
+        'timestamp': timestamp
+    }
+    
+    with open(json_path, 'w') as f:
+        json.dump(json_results, f, indent=2)
+    
+    # Графіки
+    plot_filename = f"{base_filename}_plots.png"
+    plot_path = os.path.join(experiment_folder, plot_filename)
+    self._plot_training_history(plot_path)
+    
+    # Збереження найкращої моделі
+    model_filename = f"{base_filename}_best_model.pth"
+    model_path = os.path.join(experiment_folder, model_filename)
+    torch.save(self.model.state_dict(), model_path)
+    
+    print(f"Результати збережено в папці: {experiment_folder}/")
+    print(f"Текстові результати: {txt_filename}")
+    print(f"JSON історія: {json_filename}")
+    print(f"Графіки: {plot_filename}")
+    print(f"Найкраща модель: {model_filename}")
 
-    def _plot_training_history(self, timestamp):
-        """Побудова графіків навчання"""
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
-        
-        epochs = range(1, len(self.history['train_loss']) + 1)
-        
-        # Loss
-        ax1.plot(epochs, self.history['train_loss'], 'b-', label='Train Loss', linewidth=2)
-        ax1.plot(epochs, self.history['val_loss'], 'r-', label='Val Loss', linewidth=2)
-        ax1.set_title('Training and Validation Loss')
-        ax1.set_xlabel('Epoch')
-        ax1.set_ylabel('Loss')
-        ax1.legend()
-        ax1.grid(True, alpha=0.3)
-        
-        # Accuracy
-        ax2.plot(epochs, self.history['train_acc'], 'b-', label='Train Accuracy', linewidth=2)
-        ax2.plot(epochs, self.history['val_acc'], 'r-', label='Val Accuracy', linewidth=2)
-        ax2.set_title('Training and Validation Accuracy')
-        ax2.set_xlabel('Epoch')
-        ax2.set_ylabel('Accuracy (%)')
-        ax2.legend()
-        ax2.grid(True, alpha=0.3)
-        
-        plt.tight_layout()
-        plt.savefig(os.path.join('results', f'transfer_plots_{timestamp}.png'), dpi=300, bbox_inches='tight')
-        plt.close()
-
+def _plot_training_history(self, save_path):
+    """Побудова графіків навчання"""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+    
+    epochs = range(1, len(self.history['train_loss']) + 1)
+    
+    # Loss
+    ax1.plot(epochs, self.history['train_loss'], 'b-', label='Train Loss', linewidth=2)
+    ax1.plot(epochs, self.history['val_loss'], 'r-', label='Val Loss', linewidth=2)
+    ax1.set_title('Training and Validation Loss')
+    ax1.set_xlabel('Epoch')
+    ax1.set_ylabel('Loss')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+    
+    # Accuracy
+    ax2.plot(epochs, self.history['train_acc'], 'b-', label='Train Accuracy', linewidth=2)
+    ax2.plot(epochs, self.history['val_acc'], 'r-', label='Val Accuracy', linewidth=2)
+    ax2.set_title('Training and Validation Accuracy')
+    ax2.set_xlabel('Epoch')
+    ax2.set_ylabel('Accuracy (%)')
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
+       
 
 def run_experiment(model_name, mode, learning_rate, num_epochs=10):
     """Запуск одного експерименту"""
@@ -323,9 +353,9 @@ def run_experiment(model_name, mode, learning_rate, num_epochs=10):
     
     trainer = TransferLearningTrainer(
         data_dir='data',
-        batch_size=32,
+        batch_size=8,
         num_classes=3,
-        image_size=224
+        image_size=64
     )
     
     try:
