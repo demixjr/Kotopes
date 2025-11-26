@@ -75,7 +75,7 @@ class TransferLearningTrainer:
             
             self.dataloaders = {
                 x: DataLoader(self.datasets[x], batch_size=self.batch_size,
-                            shuffle=(x == 'train'), num_workers=0)
+                            shuffle=(x == 'train'), num_workers=4)
                 for x in ['train', 'val']
             }
             
