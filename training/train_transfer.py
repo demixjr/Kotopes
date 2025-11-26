@@ -115,7 +115,7 @@ class TransferLearningTrainer:
         self.optimizer = torch.optim.SGD([
             {'params': feature_params, 'lr': 0.00001},  
             {'params': classifier_params, 'lr': 0.00005}   
-        ], momentum=0.8, weight_decay=0.00001)
+        ], momentum=0.8, weight_decay=0.0001)
         
         self.criterion = nn.CrossEntropyLoss()
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=2, gamma=0.1)
@@ -123,7 +123,7 @@ class TransferLearningTrainer:
         print(f"Learning rate: {learning_rate}")
         print(f"Параметри для навчання: {sum(p.numel() for p in self.model.parameters() if p.requires_grad):,}")
 
-    def train(self, num_epochs=10, patience=2):
+    def train(self, num_epochs=10, patience=3):
         self._print_header("ПОЧАТОК НАВЧАННЯ")
         
         since = time.time()
