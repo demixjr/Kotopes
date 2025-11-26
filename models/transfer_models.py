@@ -36,7 +36,7 @@ class ResNet18Transfer(TransferModel):
     
     def freeze_features(self):
      for name, param in self.model.named_parameters():  # Ітеруємо по всіх параметрах
-        if 'fc' not in name:                           # Якщо не останній шар (класифікатор)
+        if 'fc' not in name:                           # Якщо не останній шар 
             param.requires_grad = False                # Заморожуємо - не буде оновлюватись при навчанні
 
 class ResNet50Transfer(TransferModel):
