@@ -43,18 +43,19 @@ class BaselineTrainer:
         correct = 0
         total = 0
         
+        # Прогрес бар
         pbar = tqdm(self.train_loader, desc="Training")
         for batch_idx, (data, targets) in enumerate(pbar):
             data, targets = data.to(self.device), targets.to(self.device)
             
             # Forward pass
-            outputs = self.model(data)
-            loss = self.criterion(outputs, targets)
+            outputs = self.model(data) # отримання прогнозів
+            loss = self.criterion(outputs, targets) # обчислення втрат
             
             # Backward pass
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+            self.optimizer.zero_grad() # скидання градієнтів
+            loss.backward() # обчислення градієнтів
+            self.optimizer.step() # оновлення ваг
             
             # Статистика
             running_loss += loss.item()
@@ -68,29 +69,32 @@ class BaselineTrainer:
                 'Acc': f'{100.*correct/total:.2f}%'
             })
         
+        # Епоха статистика
         epoch_loss = running_loss / len(self.train_loader)
         epoch_accuracy = 100. * correct / total
         
         return epoch_loss, epoch_accuracy
     
     def validate_epoch(self):
+        #запуск валідації
         self.model.eval()
         running_loss = 0.0
         correct = 0
         total = 0
         
+        # Прогрес бар без градієнтів
         with torch.no_grad():
             for data, targets in tqdm(self.val_loader, desc="Validation"):
                 data, targets = data.to(self.device), targets.to(self.device)
-                
+                # Forward pass
                 outputs = self.model(data)
                 loss = self.criterion(outputs, targets)
-                
+                # Статистика
                 running_loss += loss.item()
                 _, predicted = outputs.max(1)
                 total += targets.size(0)
                 correct += predicted.eq(targets).sum().item()
-        
+        # Епоха статистика
         epoch_loss = running_loss / len(self.val_loader)
         epoch_accuracy = 100. * correct / total
         
@@ -109,11 +113,13 @@ class BaselineTrainer:
             
             # Навчання
             train_loss, train_acc = self.train_epoch()
+            # Збереження історії
             self.train_losses.append(train_loss)
             self.train_accuracies.append(train_acc)
             
             # Валідація
             val_loss, val_acc = self.validate_epoch()
+            # Збереження історії
             self.val_losses.append(val_loss)
             self.val_accuracies.append(val_acc)
             
@@ -247,6 +253,7 @@ def main():
     
     # Оптимізатор та функція втрат
     criterion = nn.CrossEntropyLoss()
+    # оптимізатор SGD
     optimizer = torch.optim.SGD(model.parameters(), lr=0.0005)
     
     # Тренер
