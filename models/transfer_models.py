@@ -5,7 +5,7 @@ class TransferModel(nn.Module):
     """Базовий клас для transfer learning моделей"""
     def __init__(self, num_classes=3, pretrained=True):
         super(TransferModel, self).__init__()  # Виклик конструктора батьківського класу
-        self.num_classes = num_classes         # Кількість класів (напр., 3 для кіт/собака/птиця)
+        self.num_classes = num_classes         # Кількість класів (3 для кіт/собака/птиця)
         self.pretrained = pretrained           # Чи використовувати попередньо навчені ваги
         
     def freeze_features(self):
