@@ -16,7 +16,7 @@ from datetime import datetime
 from tqdm import tqdm
 
 class TransferLearningTrainer:
-    def __init__(self, data_dir='data', batch_size=32, image_size=224, num_classes=3):
+    def __init__(self, data_dir='data', batch_size=8, image_size=64, num_classes=3):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.image_size = image_size
@@ -62,6 +62,7 @@ class TransferLearningTrainer:
         """Налаштування даних"""
         self._print_header("ЗАВАНТАЖЕННЯ ТА ПІДГОТОВКА ДАНИХ")
         
+         # Трансформації даних
         data_transforms = {
             'train': transforms.Compose([
                 transforms.Resize((self.image_size, self.image_size)),
@@ -72,19 +73,20 @@ class TransferLearningTrainer:
                 transforms.ToTensor(),
             ])
         }
-
+         # Завантаження датасетів
         try:
+             # Створення датасетів
             self.datasets = {
                 x: datasets.ImageFolder(os.path.join(self.data_dir, x), data_transforms[x])
                 for x in ['train', 'val']
             }
-            
+             # Створення даталоадерів
             self.dataloaders = {
                 x: DataLoader(self.datasets[x], batch_size=self.batch_size,
                             shuffle=(x == 'train'), num_workers=0)
                 for x in ['train', 'val']
             }
-            
+             # Імена класів
             self.class_names = self.datasets['train'].classes
             
             print("Дані успішно завантажено!")
@@ -110,7 +112,7 @@ class TransferLearningTrainer:
             print(f"Помилка створення моделі: {e}")
             raise
 
-        # Різні learning rates для різних частин моделі
+        # Розділення параметрів на дві групи
         feature_params = []
         classifier_params = []
         
