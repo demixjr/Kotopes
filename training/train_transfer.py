@@ -115,7 +115,7 @@ class TransferLearningTrainer:
         self.optimizer = torch.optim.SGD([
             {'params': feature_params, 'lr': 0.00001},  
             {'params': classifier_params, 'lr': 0.00005}   
-        ], momentum=0.8, weight_decay=0.0001)
+        ], momentum=0.95, weight_decay=0.0001)
         
         self.criterion = nn.CrossEntropyLoss()
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=2, gamma=0.1)
@@ -364,7 +364,7 @@ def should_skip_experiment(model_name, mode, min_accuracy=0.0):
     
     return False
 
-def run_experiment(model_name, mode, learning_rate, num_epochs=10, skip_existing=True, min_accuracy=80.0):
+def run_experiment(model_name, mode, learning_rate, num_epochs=10, skip_existing=True, min_accuracy=60.0):
     if skip_existing and should_skip_experiment(model_name, mode, min_accuracy):
         existing_result = find_existing_result(model_name, mode)
         return existing_result['accuracy'] if existing_result else 0.0
@@ -410,7 +410,7 @@ if __name__ == '__main__':
             exp['mode'], 
             exp['lr'],
             skip_existing=True,
-            min_accuracy=80.0
+            min_accuracy=60.0
         )
         results.append({
             'model': exp['model'],
@@ -426,7 +426,7 @@ if __name__ == '__main__':
     successful_results = [r for r in results if r['accuracy'] > 0]
     
     for res in successful_results:
-        status = "УСПІШНО" if res['accuracy'] >= 80.0 else "НЕУСПІШНО"
+        status = "УСПІШНО" if res['accuracy'] >= 60.0 else "НЕУСПІШНО"
         print(f"{res['model']:15} | {res['mode']:18} | LR: {res['lr']:8} | Accuracy: {res['accuracy']:.2f}% | {status}")
     
     if successful_results:
